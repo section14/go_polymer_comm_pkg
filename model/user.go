@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    "log"
+    //"log"
     "appengine"
     "appengine/datastore"
 )
@@ -26,8 +26,6 @@ func (u *User) AddUser(w http.ResponseWriter, r *http.Request) (err error) {
         //hanle input error
         return err
     }
-
-    log.Println("made it!!")
 
     return nil
 }
