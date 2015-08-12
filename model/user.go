@@ -146,7 +146,7 @@ Update password needs to be in here
 
 */
 
-func (u *User) DeleteUser(w http.ResponseWriter, r *http.Request, uid int64, newEmail string) ([]Return, error) {
+func (u *User) DeleteUser(w http.ResponseWriter, r *http.Request, uid int64) (error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -162,20 +162,19 @@ func (u *User) DeleteUser(w http.ResponseWriter, r *http.Request, uid int64, new
 
     if err != nil {
         //handle error
-        return nil, err
+        return err
     }
 
-    for i, r := range users {
-        r.Email = newEmail
+    for i, _ := range users {
 
-        //write to db
-        _, err := datastore.Put(c, key[i], &r)
+        //delete from db
+        err := datastore.Delete(c, key[i])
 
         if err != nil {
             //handle error
-            return nil, err
+            return err
         }
     }
 
-    return nil, nil
+    return nil
 }
