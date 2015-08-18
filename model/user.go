@@ -106,6 +106,29 @@ func (u *User) GetUser(w http.ResponseWriter, r *http.Request, uid int64) ([]Ret
     return results, nil
 }
 
+func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request, email string) (bool, error) {
+    //get context
+    c := appengine.NewContext(r)
+
+    //create query
+    q := datastore.NewQuery("User").Filter("Email=", email).Limit(3)
+
+    //populate user slices
+    var emails []User
+    _, err := q.GetAll(c, &emails)
+
+    if err != nil {
+        //handle error
+        return  false, err
+    }
+
+    if emails != nil {
+        return true, nil
+    }
+
+    return false, nil
+}
+
 func (u *User) UpdateEmail(w http.ResponseWriter, r *http.Request, uid int64, newEmail string) (error) {
     //get context
     c := appengine.NewContext(r)
