@@ -2,14 +2,14 @@ package model
 
 import (
     "net/http"
-    //"log"
+    "log"
     "appengine"
     "appengine/datastore"
 )
 
 type User struct {
     Email string `json:"email"`
-    Password string `json:"password"`
+    Password []byte `json:"password"`
     Role int `json:"role"`
 }
 
@@ -17,10 +17,10 @@ type Return struct {
     Key *datastore.Key
     Id int64
     Email string
-    Role int //make these bytes, flush db
+    Role int
 }
 
-func (u *User) AddUser(w http.ResponseWriter, r *http.Request) (error) {
+func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -104,6 +104,28 @@ func (u *User) GetUser(w http.ResponseWriter, r *http.Request, uid int64) ([]Ret
     }
 
     return results, nil
+}
+
+func (u *User) GetUserByEmail(w http.ResponseWriter, r *http.Request) (User, error) {
+    //get context
+    c := appengine.NewContext(r)
+
+    //create query
+    q := datastore.NewQuery("User").Filter("Email=", u.Email).Limit(1)
+
+    //populate email slices
+    var emails []User
+    _, err := q.GetAll(c, &emails)
+
+    if err != nil {
+        log.Println(err)
+        return User{}, err
+    }
+
+    var email User
+    email = emails[0]
+
+    return email, nil
 }
 
 func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request, email string) (bool, error) {
