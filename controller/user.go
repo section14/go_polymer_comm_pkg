@@ -82,7 +82,7 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
     userModel.Email = m.Email
 
     //find user
-    user, err := userModel.GetUserByEmail(w,r)
+    user, err := userModel.GetLoginData(w,r)
 
     if err != nil {
         //handle err

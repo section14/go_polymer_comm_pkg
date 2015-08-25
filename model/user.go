@@ -20,6 +20,13 @@ type Return struct {
     Role int
 }
 
+type LoginReturn struct {
+    Id int64
+    Email string
+    Password []byte
+    Role int
+}
+
 func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (error) {
     //get context
     c := appengine.NewContext(r)
@@ -106,7 +113,7 @@ func (u *User) GetUser(w http.ResponseWriter, r *http.Request, uid int64) ([]Ret
     return results, nil
 }
 
-func (u *User) GetUserByEmail(w http.ResponseWriter, r *http.Request) (User, error) {
+func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -114,18 +121,31 @@ func (u *User) GetUserByEmail(w http.ResponseWriter, r *http.Request) (User, err
     q := datastore.NewQuery("User").Filter("Email=", u.Email).Limit(1)
 
     //populate email slices
-    var emails []User
-    _, err := q.GetAll(c, &emails)
+    var users []User
+    _, err := q.GetAll(c, &users)
 
     if err != nil {
-        log.Println(err)
-        return User{}, err
+        return LoginReturn{}, err
     }
 
-    var email User
-    email = emails[0]
+    //return array of user data
+    results := make([]LoginReturn, 0, 10)
 
-    return email, nil
+    for i, r := range users {
+        k := keys[i]
+        y := LoginReturn {
+            Id: k.IntID(),
+            Email: r.Email,
+            Password: r.Password
+            Role: r.Role
+        }
+
+        results = append(results,y)
+    }
+
+    var user LoginReturn = results[0]
+
+    return user, nil
 }
 
 func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request, email string) (bool, error) {
