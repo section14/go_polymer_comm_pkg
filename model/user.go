@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    "log"
+    //"log"
     "appengine"
     "appengine/datastore"
 )
@@ -122,7 +122,7 @@ func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn
 
     //populate email slices
     var users []User
-    _, err := q.GetAll(c, &users)
+    keys, err := q.GetAll(c, &users)
 
     if err != nil {
         return LoginReturn{}, err
@@ -136,8 +136,8 @@ func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn
         y := LoginReturn {
             Id: k.IntID(),
             Email: r.Email,
-            Password: r.Password
-            Role: r.Role
+            Password: r.Password,
+            Role: r.Role,
         }
 
         results = append(results,y)
