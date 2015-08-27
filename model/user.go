@@ -8,9 +8,9 @@ import (
 )
 
 type User struct {
-    Email string `json:"email"`
-    Password []byte `json:"password"`
-    Role int `json:"role"`
+    Email string
+    Password []byte
+    Role int
 }
 
 type Return struct {
@@ -142,6 +142,12 @@ func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn
 
         results = append(results,y)
     }
+
+    /*
+
+    THIS IS WHERE THE OUT OF RANGE ERROR HAPPENS
+
+    */
 
     var user LoginReturn = results[0]
 

@@ -3,7 +3,7 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    //"log"
+    "log"
 
     "golang.org/x/crypto/bcrypt"
     "github.com/section14/go_polymer_comm_pkg/model"
@@ -39,6 +39,8 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
 
     //encrypt password
     password, err := bcrypt.GenerateFromPassword(m.Password, 10)
+
+    log.Println("create user: ", password)
 
     if err != nil {
         panic(err)
@@ -86,17 +88,24 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
 
     if err != nil {
         //handle err
+        log.Println("no user")
+        return false, err
     }
 
     //match passwords
     err = bcrypt.CompareHashAndPassword(user.Password, m.Password)
 
+    log.Println("user: ", user.Password)
+    log.Println("stored: ", m.Password)
+
     if err != nil {
         //passwords don't match
+        log.Println("no passwords")
         return false, err
     }
 
     //everything checks out!
+    log.Println("everything matches")
     return true, nil
 }
 
