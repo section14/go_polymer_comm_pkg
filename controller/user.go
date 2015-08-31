@@ -65,6 +65,12 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
 }
 
 func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
+    /*
+    *
+    You need to return the id and role here, so it can go into the jwt
+    *
+    */
+
     type Message struct {
     Email string `json:"email"`
     Password string `json:"password"`
