@@ -11,7 +11,7 @@ import (
 
 type User struct {
     Email string
-    Password []byte
+    Password string
     Role int
 }
 
@@ -22,7 +22,7 @@ type Return struct {
 func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) {
     type Message struct {
     Email string `json:"email"`
-    Password []byte `json:"password"`
+    Password string `json:"password"`
     }
 
     var m Message
@@ -38,15 +38,13 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
     userModel.Email = m.Email
 
     //encrypt password
-    password, err := bcrypt.GenerateFromPassword(m.Password, 10)
-
-    log.Println("create user: ", password)
+    password, err := bcrypt.GenerateFromPassword([]byte(m.Password), 10)
 
     if err != nil {
         panic(err)
     }
 
-    userModel.Password = password
+    userModel.Password = string(password)
     userModel.Role = 1
 
     //make sure email doesn't exist
@@ -69,7 +67,7 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
 func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
     type Message struct {
     Email string `json:"email"`
-    Password []byte `json:"password"`
+    Password string `json:"password"`
     }
 
     var m Message
@@ -78,6 +76,7 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
 
     if err != nil {
         //handle err
+        log.Println(err)
     }
 
     userModel := model.User{}
@@ -93,10 +92,7 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
     }
 
     //match passwords
-    err = bcrypt.CompareHashAndPassword(user.Password, m.Password)
-
-    log.Println("user: ", user.Password)
-    log.Println("stored: ", m.Password)
+    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(m.Password))
 
     if err != nil {
         //passwords don't match

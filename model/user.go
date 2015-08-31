@@ -9,7 +9,7 @@ import (
 
 type User struct {
     Email string
-    Password []byte
+    Password string
     Role int
 }
 
@@ -23,7 +23,7 @@ type Return struct {
 type LoginReturn struct {
     Id int64
     Email string
-    Password []byte
+    Password string
     Role int
 }
 
@@ -129,29 +129,21 @@ func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn
     }
 
     //return array of user data
-    results := make([]LoginReturn, 0, 10)
+    //results := make(LoginReturn, 0, 10)
+
+    var l LoginReturn
 
     for i, r := range users {
         k := keys[i]
-        y := LoginReturn {
+        l = LoginReturn {
             Id: k.IntID(),
             Email: r.Email,
             Password: r.Password,
             Role: r.Role,
         }
-
-        results = append(results,y)
     }
 
-    /*
-
-    THIS IS WHERE THE OUT OF RANGE ERROR HAPPENS
-
-    */
-
-    var user LoginReturn = results[0]
-
-    return user, nil
+    return l, nil
 }
 
 func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request, email string) (bool, error) {
