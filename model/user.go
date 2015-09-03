@@ -128,9 +128,6 @@ func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn
         return LoginReturn{}, err
     }
 
-    //return array of user data
-    //results := make(LoginReturn, 0, 10)
-
     var l LoginReturn
 
     for i, r := range users {

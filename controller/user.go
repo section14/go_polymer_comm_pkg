@@ -19,6 +19,11 @@ type Return struct {
     Email string
 }
 
+type LoginReturn struct {
+    Id int64
+    Role int
+}
+
 func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) {
     type Message struct {
     Email string `json:"email"`
@@ -64,7 +69,7 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
     return true, nil
 }
 
-func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
+func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error) {
     /*
     *
     You need to return the id and role here, so it can go into the jwt
@@ -94,7 +99,7 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
     if err != nil {
         //handle err
         log.Println("no user")
-        return false, err
+        return LoginReturn{}, err
     }
 
     //match passwords
@@ -103,12 +108,19 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (bool, error) {
     if err != nil {
         //passwords don't match
         log.Println("no passwords")
-        return false, err
+        return LoginReturn{}, err
     }
 
     //everything checks out!
+    var l LoginReturn
+
+    l = LoginReturn {
+        Id: user.Id,
+        Role: user.Role,
+    }
+
     log.Println("everything matches")
-    return true, nil
+    return l, nil
 }
 
 func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request) (bool, error) {
