@@ -49,6 +49,7 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
         panic(err)
     }
 
+    //populate model
     userModel.Password = string(password)
     userModel.Role = 1
 
@@ -60,7 +61,7 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
     }
 
     //create new user
-    err = userModel.CreateUser(w,r)
+    err = userModel.CreateUser(r)
 
     if err != nil {
         return false, err
@@ -69,12 +70,18 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
     return true, nil
 }
 
+func (u *User) GetUser(r *http.Request, Id int64) (Return, error) {
+    userModel := model.User{}
+    user,err := userModel.GetUser(r,Id)
+
+    if err != nil {
+        return Return{}, err
+    }
+
+    return user, nil
+}
+
 func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error) {
-    /*
-    *
-    You need to return the id and role here, so it can go into the jwt
-    *
-    */
 
     type Message struct {
     Email string `json:"email"`

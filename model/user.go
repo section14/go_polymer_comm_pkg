@@ -27,7 +27,7 @@ type LoginReturn struct {
     Role int
 }
 
-func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (error) {
+func (u *User) CreateUser(r *http.Request) (error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -77,7 +77,7 @@ func (u *User) GetAllUsers(w http.ResponseWriter, r *http.Request) ([]Return, er
     return results, nil
 }
 
-func (u *User) GetUser(w http.ResponseWriter, r *http.Request, uid int64) ([]Return, error) {
+func (u *User) GetUser(r *http.Request, uid int64) (Return, error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -93,24 +93,22 @@ func (u *User) GetUser(w http.ResponseWriter, r *http.Request, uid int64) ([]Ret
 
     if err != nil {
         //handle error
-        return nil, err
+        return Return{}, err
     }
 
-    //return array of user data
-    results := make([]Return, 0, 10)
+    //return user data
+    var result Return
 
     for i, r := range users {
         k := keys[i]
-        y := Return {
+        result = Return {
             Key: k,
             Id: k.IntID(),
             Email: r.Email,
         }
-
-        results = append(results,y)
     }
 
-    return results, nil
+    return result, nil
 }
 
 func (u *User) GetLoginData(w http.ResponseWriter, r *http.Request) (LoginReturn, error) {
