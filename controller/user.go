@@ -11,17 +11,49 @@ import (
 
 type User struct {
     Email string
+    Name string
+    Phone string
     Password string
     Role int
 }
 
 type Return struct {
     Email string
+    Name string
+    Phone string
 }
 
 type LoginReturn struct {
     Id int64
     Role int
+}
+
+func (u *User) CreateAdmin(r *http.Request) (bool, error) {
+
+    //populate user data
+    userModel := model.User{}
+    userModel.Email = "admin@gmail.com"
+    plainPassword := "123456"
+
+    //encrypt password
+    password, err := bcrypt.GenerateFromPassword([]byte(plainPassword), 10)
+
+    if err != nil {
+        panic(err)
+    }
+
+    //populate model
+    userModel.Password = string(password)
+    userModel.Role = 2
+
+    //create new user
+    err = userModel.CreateUser(r)
+
+    if err != nil {
+        return false, err
+    }
+
+    return true, nil
 }
 
 func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) {
@@ -72,10 +104,16 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
 
 func (u *User) GetUser(r *http.Request, Id int64) (Return, error) {
     userModel := model.User{}
-    user,err := userModel.GetUser(r,Id)
+    userData,err := userModel.GetUser(r,Id)
 
     if err != nil {
         return Return{}, err
+    }
+
+    user := Return {
+        Email: userData.Email,
+        Name: userData.Name,
+        Phone: userData.Phone,
     }
 
     return user, nil
@@ -105,7 +143,6 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error
 
     if err != nil {
         //handle err
-        log.Println("no user")
         return LoginReturn{}, err
     }
 
@@ -114,7 +151,6 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error
 
     if err != nil {
         //passwords don't match
-        log.Println("no passwords")
         return LoginReturn{}, err
     }
 
@@ -126,7 +162,6 @@ func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error
         Role: user.Role,
     }
 
-    log.Println("everything matches")
     return l, nil
 }
 
@@ -152,8 +187,4 @@ func (u *User) CheckEmail(w http.ResponseWriter, r *http.Request) (bool, error) 
     }
 
     return emailStatus, nil
-}
-
-func (u *User) TestHit() {
-
 }

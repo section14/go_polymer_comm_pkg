@@ -9,6 +9,8 @@ import (
 
 type User struct {
     Email string
+    Name string
+    Phone string
     Password string
     Role int
 }
@@ -17,6 +19,8 @@ type Return struct {
     Key *datastore.Key
     Id int64
     Email string
+    Name string
+    Phone string
     Role int
 }
 
