@@ -8,6 +8,7 @@ import (
 )
 
 type Address struct {
+    UserId int64
     Line1 string
     Line2 string
     City string
