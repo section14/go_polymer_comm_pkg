@@ -9,8 +9,8 @@ import (
 
 type Address struct {
     UserId int64
-    Line1 string
-    Line2 string
+    Street1 string
+    Street2 string
     City string
     State string
     PostCode string
