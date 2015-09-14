@@ -3,12 +3,13 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    "log"
+    //"log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
 )
 
 type Address struct {
+    Id int64 `json:"id"`
     UserId int64 `json:"userid"`
     Street1 string `json:"street1"`
     Street2 string `json:"street2"`
@@ -19,7 +20,7 @@ type Address struct {
 }
 
 type AddressReturn struct {
-    Id int64 `json:"street1"`
+    Id int64 `json:"id"`
     Street1 string `json:"street1"`
     Street2 string `json:"street2"`
     City string `json:"city"`
@@ -36,6 +37,7 @@ func (a *Address) CreateAddress(r *http.Request) (bool, error) {
     err := decoder.Decode(&a)
 
     //populate model
+    addressModel.UserId = a.UserId
     addressModel.Street1 = a.Street1
     addressModel.Street2 = a.Street2
     addressModel.City = a.City
@@ -44,6 +46,31 @@ func (a *Address) CreateAddress(r *http.Request) (bool, error) {
     addressModel.Country = a.Country
 
     err = addressModel.CreateAddress(r)
+
+    if err != nil {
+        return false, err
+    }
+
+    return true, nil
+}
+
+func (a *Address) UpdateAddress(r *http.Request) (bool, error) {
+    addressModel := model.Address{}
+
+    //grab json data from request
+    decoder := json.NewDecoder(r.Body)
+    err := decoder.Decode(&a)
+
+    //populate model
+    addressModel.UserId = a.UserId
+    addressModel.Street1 = a.Street1
+    addressModel.Street2 = a.Street2
+    addressModel.City = a.City
+    addressModel.State = a.State
+    addressModel.PostCode = a.PostCode
+    addressModel.Country = a.Country
+
+    err = addressModel.UpdateAddress(r, a.Id)
 
     if err != nil {
         return false, err
@@ -77,20 +104,6 @@ func (a *Address) GetAllAddress(r *http.Request) ([]AddressReturn, error) {
 
         results = append(results, y)
     }
-
-    /*
-    address := []AddressReturn {
-        Id: addressData.Id,
-        Street1: addressData.Street1,
-        Street2: addressData.Street2,
-        City: addressData.City,
-        State: addressData.State,
-        PostCode: addressData.PostCode,
-        Country: addressData.Country,
-    }
-    */
-
-    log.Println(results)
 
     return results, nil
 }

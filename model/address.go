@@ -20,6 +20,7 @@ type Address struct {
 type AddressReturn struct {
     Key *datastore.Key
     Id int64
+    UserId int64
     Street1 string
     Street2 string
     City string
@@ -33,9 +34,31 @@ func (a *Address) CreateAddress(r *http.Request) (error) {
     c := appengine.NewContext(r)
 
     //create new address
-    key := datastore.NewIncompleteKey(c, "Address", nil)
+    k := datastore.NewIncompleteKey(c, "Address", nil)
 
-    _, err := datastore.Put(c, key, a)
+    _, err := datastore.Put(c, k, a)
+
+    if err != nil {
+        //hanle input error
+        return err
+    }
+
+    return nil
+}
+
+func (a *Address) UpdateAddress(r *http.Request, Id int64) (error) {
+    //get context
+    c := appengine.NewContext(r)
+
+    log.Println("fuck Id: ")
+
+    //get key
+    k := datastore.NewKey(c, "Address", "", Id, nil)
+
+    //start query
+    //q := datastore.NewQuery("Address").Filter("__key__ =", k)
+
+    _, err := datastore.Put(c, k, a)
 
     if err != nil {
         //hanle input error
@@ -49,13 +72,8 @@ func (a *Address) GetAllAddress(r *http.Request) ([]AddressReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
-    //get key
-    //k := datastore.NewKey(c, "Address", "", a.UserId, nil)
-
     //start query
     q := datastore.NewQuery("Address").Filter("UserId=", a.UserId)
-
-    log.Println("model user id: ", a.UserId)
 
     //populate address slices and get keys
     var addresses []AddressReturn
@@ -67,7 +85,7 @@ func (a *Address) GetAllAddress(r *http.Request) ([]AddressReturn, error) {
     }
 
     //return address data slices
-    results := make([]AddressReturn, 0, 10)
+    results := make([]AddressReturn, 0, 20)
 
     for i, r := range addresses {
         k := keys[i]
