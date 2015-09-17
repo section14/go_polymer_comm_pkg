@@ -119,6 +119,8 @@ func (u *User) GetUser(r *http.Request, Id int64) (Return, error) {
     return user, nil
 }
 
+
+
 func (u *User) Login(w http.ResponseWriter, r *http.Request) (LoginReturn, error) {
 
     type Message struct {
