@@ -15,7 +15,7 @@ type User struct {
     Role int
 }
 
-type Return struct {
+type UserReturn struct {
     Key *datastore.Key
     Id int64
     Email string
@@ -48,7 +48,7 @@ func (u *User) CreateUser(r *http.Request) (error) {
     return nil
 }
 
-func (u *User) GetAllUsers(w http.ResponseWriter, r *http.Request) ([]Return, error) {
+func (u *User) GetAllUsers(w http.ResponseWriter, r *http.Request) ([]UserReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -65,11 +65,11 @@ func (u *User) GetAllUsers(w http.ResponseWriter, r *http.Request) ([]Return, er
     }
 
     //return array of user data
-    results := make([]Return, 0, 10)
+    results := make([]UserReturn, 0, 10)
 
     for i, r := range users {
         k := keys[i]
-        y := Return {
+        y := UserReturn {
             Key: k,
             Id: k.IntID(),
             Email: r.Email,
@@ -81,7 +81,7 @@ func (u *User) GetAllUsers(w http.ResponseWriter, r *http.Request) ([]Return, er
     return results, nil
 }
 
-func (u *User) GetUser(r *http.Request, uid int64) (Return, error) {
+func (u *User) GetUser(r *http.Request, uid int64) (UserReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
@@ -97,18 +97,19 @@ func (u *User) GetUser(r *http.Request, uid int64) (Return, error) {
 
     if err != nil {
         //handle error
-        return Return{}, err
+        return UserReturn{}, err
     }
 
     //return user data
-    var result Return
+    var result UserReturn
 
     for i, r := range users {
         k := keys[i]
-        result = Return {
+        result = UserReturn {
             Key: k,
             Id: k.IntID(),
             Email: r.Email,
+            Role: r.Role,
         }
     }
 

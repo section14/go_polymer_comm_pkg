@@ -17,10 +17,11 @@ type User struct {
     Role int
 }
 
-type Return struct {
+type UserReturn struct {
     Email string
     Name string
     Phone string
+    Role int
 }
 
 type LoginReturn struct {
@@ -102,18 +103,19 @@ func (u *User) CreateUser(w http.ResponseWriter, r *http.Request) (bool, error) 
     return true, nil
 }
 
-func (u *User) GetUser(r *http.Request, Id int64) (Return, error) {
+func (u *User) GetUser(r *http.Request, Id int64) (UserReturn, error) {
     userModel := model.User{}
     userData,err := userModel.GetUser(r,Id)
 
     if err != nil {
-        return Return{}, err
+        return UserReturn{}, err
     }
 
-    user := Return {
+    user := UserReturn {
         Email: userData.Email,
         Name: userData.Name,
         Phone: userData.Phone,
+        Role: userData.Role,
     }
 
     return user, nil

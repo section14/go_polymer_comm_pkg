@@ -9,6 +9,7 @@ import (
 
 type Category struct {
     Name string
+    ParentId int64
 }
 
 func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) error {

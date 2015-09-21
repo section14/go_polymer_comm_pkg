@@ -3,13 +3,20 @@ package auth
 import (
     "fmt"
     "net/http"
+    "log"
     //"encoding/json"
     "time"
+
     "github.com/dgrijalva/jwt-go"
+    "github.com/section14/go_polymer_comm_pkg/controller"
 )
 
 type JwtToken struct {
     Token *jwt.Token
+}
+
+type Auth struct {
+
 }
 
 type AuthUser interface {
@@ -29,6 +36,35 @@ Assign new token to the struct instead of returning a string?
 //func (j *JwtToken) VerifyUser(r *http.Request) bool {
 //
 //}
+
+func (a *Auth) VerifyAdmin(r *http.Request) bool {
+    token := JwtToken{}
+
+    userToken, err := token.ParseToken(r)
+
+    if err != nil {
+        return false
+    }
+
+    //get user
+    userController := controller.User{}
+    userId := userToken.Claims["userId"].(float64)
+    user, err := userController.GetUser(r,int64(userId))
+
+    if err != nil {
+        return false
+    }
+
+    log.Println("user role: ", user.Role)
+
+    //verify admin status
+    if user.Role != 2 {
+        return false
+    }
+
+    //verified
+    return true
+}
 
 func (j *JwtToken) GenerateToken(Id int64, Role int) string {
 	//jwt token

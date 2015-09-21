@@ -10,6 +10,7 @@ import (
 
 type Category struct {
     Name string `json:"name"`
+    ParentId int64 `json:"parentid"`
 }
 
 func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) (bool, error) {
@@ -24,6 +25,7 @@ func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) (boo
     //populate category data
     categoryModel := model.Category{}
     categoryModel.Name = cat.Name
+    categoryModel.ParentId = cat.ParentId
 
     return true, nil
 }
