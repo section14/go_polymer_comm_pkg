@@ -19,7 +19,7 @@ func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) erro
     //create new category entry
     key := datastore.NewIncompleteKey(c, "Category", nil)
 
-    _, err := datastore.Put(c, key, cat)
+    _, err := datastore.Put(c, key, cat.Name)
 
     if err != nil {
         //hanle input error
