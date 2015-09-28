@@ -14,8 +14,9 @@ type Category struct {
 }
 
 func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) (bool, error) {
+
     decoder := json.NewDecoder(r.Body)
-    err:= decoder.Decode(&cat)
+    err := decoder.Decode(&cat)
 
     if err != nil {
         //handle err

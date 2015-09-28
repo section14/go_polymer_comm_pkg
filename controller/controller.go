@@ -1,9 +1,5 @@
 package controller
 
-type CheckAdmin interface {
-    ValidateAdmin()
-}
-
 /*
 
 Figure out a way to implement this interface. A regular user interface will probably be handy too.
