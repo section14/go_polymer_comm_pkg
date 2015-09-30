@@ -3,7 +3,7 @@ package auth
 import (
     "fmt"
     "net/http"
-    "log"
+    //"log"
     //"encoding/json"
     "time"
 
@@ -54,8 +54,6 @@ func (a *Auth) VerifyAdmin(r *http.Request) bool {
     if err != nil {
         return false
     }
-
-    log.Println("user role: ", user.Role)
 
     //verify admin status
     if user.Role != 2 {

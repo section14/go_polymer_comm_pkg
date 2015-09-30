@@ -3,7 +3,7 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    //"log"
+    "log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
 )
@@ -13,7 +13,7 @@ type Category struct {
     ParentId int64 `json:"parentid"`
 }
 
-func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) (bool, error) {
+func (cat *Category) CreateCategory(r *http.Request) (bool, error) {
 
     decoder := json.NewDecoder(r.Body)
     err := decoder.Decode(&cat)
@@ -27,6 +27,11 @@ func (cat *Category) CreateCategory(w http.ResponseWriter, r *http.Request) (boo
     categoryModel := model.Category{}
     categoryModel.Name = cat.Name
     categoryModel.ParentId = cat.ParentId
+    err = categoryModel.CreateCategory(r)
+
+    if err != nil {
+        log.Println(err)
+    }
 
     return true, nil
 }
