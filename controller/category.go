@@ -3,6 +3,7 @@ package controller
 import (
     "net/http"
     "encoding/json"
+    "appengine/datastore"
     "log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
@@ -10,7 +11,7 @@ import (
 
 type Category struct {
     Name string `json:"name"`
-    ParentId int64 `json:"parentid"`
+    ParentId *datastore.Key `json:"parentid"`
 }
 
 func (cat *Category) CreateCategory(r *http.Request) (bool, error) {
@@ -26,8 +27,7 @@ func (cat *Category) CreateCategory(r *http.Request) (bool, error) {
     //populate category data
     categoryModel := model.Category{}
     categoryModel.Name = cat.Name
-    categoryModel.ParentId = cat.ParentId
-    err = categoryModel.CreateCategory(r)
+    err = categoryModel.CreateCategory(r, cat.ParentId)
 
     if err != nil {
         log.Println(err)
