@@ -3,7 +3,6 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    "strconv"
     "log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
@@ -11,7 +10,7 @@ import (
 
 type Category struct {
     Name string `json:"name"`
-    ParentId int64 `json:"parentid"`
+    Key string `json:"key"`
 }
 
 type CategoryReturn struct {
@@ -33,7 +32,7 @@ func (cat *Category) CreateCategory(r *http.Request) (bool, error) {
     //populate category data
     categoryModel := model.Category{}
     categoryModel.Name = cat.Name
-    err = categoryModel.CreateCategory(r, cat.ParentId)
+    err = categoryModel.CreateCategory(r, cat.Key)
 
     if err != nil {
         log.Println(err)
@@ -45,15 +44,8 @@ func (cat *Category) CreateCategory(r *http.Request) (bool, error) {
 func (cat *Category) GetCategories(r *http.Request) ([]CategoryReturn, error) {
     parentCat := r.Header.Get("Parent-Category")
 
-    //get id (string) header and convert to int64
-    var parentId int64
-
-    if i, err := strconv.Atoi(parentCat); err == nil {
-        parentId = int64(i)
-    }
-
     categoryModel := model.Category{}
-    categories, err := categoryModel.GetCategories(r, parentId)
+    categories, err := categoryModel.GetCategories(r, parentCat)
 
     if err != nil {
         log.Println(err)

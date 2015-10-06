@@ -17,7 +17,7 @@ type CategoryReturn struct {
     Key string
 }
 
-func (cat *Category) CreateCategory(r *http.Request, parentId int64) error {
+func (cat *Category) CreateCategory(r *http.Request, parentKey string) error {
     //get context
     c := appengine.NewContext(r)
 
@@ -30,16 +30,22 @@ func (cat *Category) CreateCategory(r *http.Request, parentId int64) error {
     */
 
     var k *datastore.Key
+    var err error
 
-    if parentId == 0 {
+    if parentKey == "0" {
         //create an incomplete key
         k = datastore.NewIncompleteKey(c, "Category", k)
+        log.Println("orphan child")
     } else {
         //create Key
-        k = datastore.NewKey(c, "Category", "", parentId, nil)
+        k, err = datastore.DecodeKey(parentKey)
+        log.Println("you have a mommy: ", parentKey)
+        if err != nil {
+            return err
+        }
     }
 
-    _, err := datastore.Put(c, k, cat)
+    _, err = datastore.Put(c, k, cat)
 
     if err != nil {
         //hanle input error
@@ -49,38 +55,26 @@ func (cat *Category) CreateCategory(r *http.Request, parentId int64) error {
     return nil
 }
 
-/*
-func getKey(r *http.Request, id int64) datastore.Key {
-    //get record key for ancestor based queries
-
-    //get context
-    c := appengine.NewContext(r)
-
-    //get key
-    k := datastore.NewKey(c, "Category", "", a.UserId, nil)
-
-    //start query
-    q := datastore.NewQuery("Address").Filter("__key__ =", k)
-}
-*/
-
-func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn, error) {
+func (cat *Category) GetCategories(r *http.Request, pk string) ([]CategoryReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
     var q *datastore.Query
+    var err error
 
     //if this isn't the top level, get ancestors
-    if pid != 0 {
-        //make ancestor key
-        k := datastore.NewKey(c, "Category", "", pid, nil)
+    if pk != "0" {
+        //get parent key
+        k, err := datastore.DecodeKey(pk)
 
-        //start query
+        if err != nil {
+            //handle error
+            return []CategoryReturn{}, err
+        }
         q = datastore.NewQuery("Category").Ancestor(k)
-        log.Println("------------------dat id", pid)
     } else {
+        //query without ancestor
         q = datastore.NewQuery("Category")
-        log.Println("------------------------------------------------------------------------gamed last yall bitch made fools")
     }
 
     //populate category slices
