@@ -2,22 +2,24 @@ package model
 
 import (
     "net/http"
-    "log"
+    //"log"
     "appengine"
     "appengine/datastore"
 )
 
 type Category struct {
     Name string
+    Root bool
 }
 
 type CategoryReturn struct {
     Name string
+    Root bool
     Id int64
     Key string
 }
 
-func (cat *Category) CreateCategory(r *http.Request, parentKey string) error {
+func (cat *Category) CreateCategory(r *http.Request, pk string) error {
     //get context
     c := appengine.NewContext(r)
 
@@ -32,19 +34,23 @@ func (cat *Category) CreateCategory(r *http.Request, parentKey string) error {
     var k *datastore.Key
     var err error
 
-    if parentKey == "0" {
-        //create an incomplete key
-        k = datastore.NewIncompleteKey(c, "Category", k)
-        log.Println("orphan child")
+    if pk == "0" {
+        //create a new key
+        k = datastore.NewIncompleteKey(c, "Category", nil)
+        cat.Root = true
     } else {
-        //create Key
-        k, err = datastore.DecodeKey(parentKey)
-        log.Println("you have a mommy: ", parentKey)
+        //create parent key
+        parent, err := datastore.DecodeKey(pk)
+
         if err != nil {
             return err
         }
+
+        k = datastore.NewIncompleteKey(c, "Category", parent)
+        cat.Root = false
     }
 
+    //enter record
     _, err = datastore.Put(c, k, cat)
 
     if err != nil {
@@ -71,10 +77,11 @@ func (cat *Category) GetCategories(r *http.Request, pk string) ([]CategoryReturn
             //handle error
             return []CategoryReturn{}, err
         }
+
         q = datastore.NewQuery("Category").Ancestor(k)
     } else {
         //query without ancestor
-        q = datastore.NewQuery("Category")
+        q = datastore.NewQuery("Category").Filter("Root=", true)
     }
 
     //populate category slices
