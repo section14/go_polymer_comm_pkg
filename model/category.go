@@ -9,49 +9,27 @@ import (
 
 type Category struct {
     Name string
-    Root bool
+    ParentId int64
 }
 
 type CategoryReturn struct {
     Name string
-    Root bool
     Id int64
+    ParentId int64
     Key string
 }
 
-func (cat *Category) CreateCategory(r *http.Request, pk string) error {
+func (cat *Category) CreateCategory(r *http.Request, pid int64) error {
     //get context
     c := appengine.NewContext(r)
 
-    /*
+    //set parent id
+    cat.ParentId = pid
 
-    If parentId is 0, it's the top level witout any parents. In this case,
-    create an incomplete key. Otherwise, create your own key with it's
-    ancestor reference key.
-
-    */
-
-    var k *datastore.Key
-    var err error
-
-    if pk == "0" {
-        //create a new key
-        k = datastore.NewIncompleteKey(c, "Category", nil)
-        cat.Root = true
-    } else {
-        //create parent key
-        parent, err := datastore.DecodeKey(pk)
-
-        if err != nil {
-            return err
-        }
-
-        k = datastore.NewIncompleteKey(c, "Category", parent)
-        cat.Root = false
-    }
+    k := datastore.NewIncompleteKey(c, "Category", nil)
 
     //enter record
-    _, err = datastore.Put(c, k, cat)
+    _, err := datastore.Put(c, k, cat)
 
     if err != nil {
         //hanle input error
@@ -61,28 +39,12 @@ func (cat *Category) CreateCategory(r *http.Request, pk string) error {
     return nil
 }
 
-func (cat *Category) GetCategories(r *http.Request, pk string) ([]CategoryReturn, error) {
+func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn, error) {
     //get context
     c := appengine.NewContext(r)
 
-    var q *datastore.Query
-    var err error
-
-    //if this isn't the top level, get ancestors
-    if pk != "0" {
-        //get parent key
-        k, err := datastore.DecodeKey(pk)
-
-        if err != nil {
-            //handle error
-            return []CategoryReturn{}, err
-        }
-
-        q = datastore.NewQuery("Category").Ancestor(k)
-    } else {
-        //query without ancestor
-        q = datastore.NewQuery("Category").Filter("Root=", true)
-    }
+    //
+    q := datastore.NewQuery("Category").Filter("ParentId=", pid)
 
     //populate category slices
     var categories []CategoryReturn
@@ -101,6 +63,7 @@ func (cat *Category) GetCategories(r *http.Request, pk string) ([]CategoryReturn
         y := CategoryReturn {
             Name: r.Name,
             Id: k.IntID(),
+            ParentId: r.ParentId,
             Key: k.Encode(),
         }
 
