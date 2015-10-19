@@ -3,8 +3,8 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    "strconv"
-    "log"
+    //"strconv"
+    //"log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
 )
@@ -14,6 +14,7 @@ type Product struct {
     Sku string
     Desc string
     Image string
+    Category int64
 }
 
 type ProductReturn struct {
@@ -23,4 +24,32 @@ type ProductReturn struct {
     Sku string
     Desc string
     Image string
+    Category int64
+}
+
+func (p *Product) CreateProduct(r *http.Request) (bool, error) {
+    //get json request body
+    decoder := json.NewDecoder(r.Body)
+    err := decoder.Decode(&p)
+
+    if err != nil {
+        //handle err
+        return false, err
+    }
+
+    //populate product data
+    productModel := model.Product{}
+    productModel.Title = p.Title
+    productModel.Sku = p.Sku
+    productModel.Desc = p.Desc
+    productModel.Image = p.Image
+    productModel.Category = p.Category
+
+    err = productModel.CreateProduct(r)
+
+    if err != nil {
+        log.Println(err)
+    }
+
+    return true, nil
 }
