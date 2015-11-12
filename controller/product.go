@@ -4,7 +4,7 @@ import (
     "net/http"
     "encoding/json"
     //"strconv"
-    //"log"
+    "log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
 )
@@ -27,14 +27,14 @@ type ProductReturn struct {
     Category int64
 }
 
-func (p *Product) CreateProduct(r *http.Request) (bool, error) {
+func (p *Product) CreateProduct(r *http.Request) error {
     //get json request body
     decoder := json.NewDecoder(r.Body)
     err := decoder.Decode(&p)
 
     if err != nil {
         //handle err
-        return false, err
+        return err
     }
 
     //populate product data
@@ -51,5 +51,5 @@ func (p *Product) CreateProduct(r *http.Request) (bool, error) {
         log.Println(err)
     }
 
-    return true, nil
+    return nil
 }
