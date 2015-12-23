@@ -41,3 +41,12 @@ func (p *Product) CreateProduct(r *http.Request) error {
 
     return nil
 }
+
+/*
+func (p *Product) GetProducts(r *http.Request) ([]ProductReturn, error) {
+    //get context
+    c := appengine.NewContext(r)
+
+
+}
+*/
