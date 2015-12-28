@@ -10,12 +10,14 @@ import (
 type Category struct {
     Name string
     ParentId int64
+    Products []int64
 }
 
 type CategoryReturn struct {
     Name string
     Id int64
     ParentId int64
+    Products []int64
     Key string
 }
 
@@ -43,7 +45,7 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
     //get context
     c := appengine.NewContext(r)
 
-    //
+    //new query
     q := datastore.NewQuery("Category").Filter("ParentId=", pid)
 
     //populate category slices
@@ -64,6 +66,7 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
             Name: r.Name,
             Id: k.IntID(),
             ParentId: r.ParentId,
+            Products: r.Products
             Key: k.Encode(),
         }
 
@@ -72,4 +75,14 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
 
     return results, nil
 
+}
+
+func (cat *Category) UpdateProductList(r *http.Request, id int64) error {
+    //method to update product list associated to a category
+
+    //get context
+    c := appengine.NewContext(r)
+
+    //new query
+    q := datastore.NewQuery("Category").Filter("Id=", id)
 }

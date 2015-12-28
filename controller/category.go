@@ -18,6 +18,7 @@ type CategoryReturn struct {
     Name string
     Id int64
     ParentId int64
+    Products []int64
     Key string
 }
 
@@ -66,6 +67,7 @@ func (cat *Category) GetCategories(r *http.Request) ([]CategoryReturn, error) {
             Name: r.Name,
             Id: r.Id,
             ParentId: r.ParentId,
+            Products: r.Products,
             Key: r.Key,
         }
 

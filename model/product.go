@@ -12,7 +12,6 @@ type Product struct {
     Sku string
     Desc string
     Image string
-    Category int64
 }
 
 type ProductReturn struct {
@@ -22,7 +21,6 @@ type ProductReturn struct {
     Sku string
     Desc string
     Image string
-    Category int64
 }
 
 func (p *Product) CreateProduct(r *http.Request) error {
