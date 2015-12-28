@@ -43,13 +43,17 @@ func (p *Product) CreateProduct(r *http.Request) error {
     productModel.Sku = p.Sku
     productModel.Desc = p.Desc
     productModel.Image = p.Image
-    productModel.Category = p.Category
+    productModel.Category = p.Category //this can probably go
 
     err = productModel.CreateProduct(r)
 
     if err != nil {
         log.Println(err)
     }
+
+    //add product to selected category .... needs updated to handle multiple categories
+    categoryModel := model.Category{}
+    
 
     return nil
 }

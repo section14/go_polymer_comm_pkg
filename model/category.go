@@ -85,4 +85,11 @@ func (cat *Category) UpdateProductList(r *http.Request, id int64) error {
 
     //new query
     q := datastore.NewQuery("Category").Filter("Id=", id)
+
+    var categories []CategoryReturn
+    keys, err := q.GetAll(c, &categories)
+
+    if err != nil {
+        return err
+    }
 }
