@@ -77,7 +77,7 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
 
 }
 
-func (cat *Category) UpdateProductList(r *http.Request, id int64) error {
+func (cat *Category) UpdateProductList(r *http.Request, prodId int64, catId int64) error {
     //method to update product list associated to a category
 
     //get context
