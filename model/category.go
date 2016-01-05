@@ -66,7 +66,7 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
             Name: r.Name,
             Id: k.IntID(),
             ParentId: r.ParentId,
-            Products: r.Products
+            Products: r.Products,
             Key: k.Encode(),
         }
 
@@ -77,19 +77,43 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
 
 }
 
-func (cat *Category) UpdateProductList(r *http.Request, prodId int64, catId int64) error {
+func (cat *Category) UpdateProductList(r *http.Request, catId int64, catName string, prodId int64, add bool) error {
     //method to update product list associated to a category
 
     //get context
     c := appengine.NewContext(r)
 
     //new query
-    q := datastore.NewQuery("Category").Filter("Id=", id)
+    k := appengine.NewKey(c, catName, 0, catId)
 
-    var categories []CategoryReturn
-    keys, err := q.GetAll(c, &categories)
+    //get category
+    err := datastore.Get(c, k, cat)
 
     if err != nil {
         return err
     }
+
+    //get product list for this category
+    prodList = cat.Products
+    var newProdList []int64
+
+    if add == true {
+        AddProduct(*prodList, prodId)
+    } else {
+        RemoveProduct(*prodList, prodId)
+    }
+}
+
+func AddProduct(products *[]int64, id int64) {
+    for _, r := range products {
+        if r == id {
+            return nil
+        }
+    }
+
+    products = append(products, id)
+}
+
+func RemoveProduct(products *[]int64, id int64) {
+
 }

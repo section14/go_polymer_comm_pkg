@@ -23,21 +23,29 @@ type ProductReturn struct {
     Image string
 }
 
-func (p *Product) CreateProduct(r *http.Request) error {
+func (p *Product) CreateProduct(r *http.Request) (int64, error) {
     //get context
     c := appengine.NewContext(r)
 
     k := datastore.NewIncompleteKey(c, "Product", nil)
 
     //enter record
-    _, err := datastore.Put(c, k, p)
+    newKey, err := datastore.Put(c, k, p)
 
     if err != nil {
         //hanle input error
-        return err
+        return 0, err
     }
 
-    return nil
+    //get id of newly created record
+    data := DataId{}
+    productId, err := data.GetId(r,newKey)
+
+    if err != nil {
+        return 0, err
+    }
+
+    return productId, nil
 }
 
 /*
