@@ -8,7 +8,8 @@ import (
 )
 
 type DataId struct {
-    Id int64
+    ID int64
+    Image string
 }
 
 func (d *DataId) GetId(r *http.Request, k *datastore.Key) (int64, error) {
@@ -21,5 +22,5 @@ func (d *DataId) GetId(r *http.Request, k *datastore.Key) (int64, error) {
         return 0, err
     }
 
-    return d.Id, nil
+    return d.ID, nil
 }

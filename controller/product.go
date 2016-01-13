@@ -43,9 +43,8 @@ func (p *Product) CreateProduct(r *http.Request) error {
     productModel.Sku = p.Sku
     productModel.Desc = p.Desc
     productModel.Image = p.Image
-    productModel.Category = p.Category //this can probably go
 
-    err = productModel.CreateProduct(r) //this needs to return an id to use below
+    pid, err := productModel.CreateProduct(r) //this needs to return an id to use below
 
     if err != nil {
         log.Println(err)
@@ -53,7 +52,7 @@ func (p *Product) CreateProduct(r *http.Request) error {
 
     //add product to selected category .... needs updated to handle multiple categories
     categoryModel := model.Category{}
-
+    categoryModel.UpdateProductList(r,p.Category,pid,true)
 
     return nil
 }

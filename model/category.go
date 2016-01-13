@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    //"log"
+    "log"
     "appengine"
     "appengine/datastore"
 )
@@ -25,8 +25,12 @@ func (cat *Category) CreateCategory(r *http.Request, pid int64) error {
     //get context
     c := appengine.NewContext(r)
 
+    //exmpty product array
+    var products []int64 = []int64{0}
+
     //set parent id
     cat.ParentId = pid
+    cat.Products = products
 
     k := datastore.NewIncompleteKey(c, "Category", nil)
 
@@ -77,14 +81,14 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
 
 }
 
-func (cat *Category) UpdateProductList(r *http.Request, catId int64, catName string, prodId int64, add bool) error {
+func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int64, add bool) error {
     //method to update product list associated to a category
 
     //get context
     c := appengine.NewContext(r)
 
     //new query
-    k := appengine.NewKey(c, catName, 0, catId)
+    k := datastore.NewKey(c, "Category", "0", catId, nil)
 
     //get category
     err := datastore.Get(c, k, cat)
@@ -94,26 +98,49 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, catName str
     }
 
     //get product list for this category
-    prodList = cat.Products
+    prodList := cat.Products
     var newProdList []int64
 
+    log.Println("update called")
+
+    //update list of products
     if add == true {
-        AddProduct(*prodList, prodId)
+        newProdList, err = AddProduct(prodList, prodId)
     } else {
-        RemoveProduct(*prodList, prodId)
+        newProdList, err = RemoveProduct(prodList, prodId)
     }
+
+    if err != nil {
+        return err
+    }
+
+    //update struct
+    cat.Products = newProdList
+
+    //insert into database
+    _, err = datastore.Put(c, k, cat)
+
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
 
-func AddProduct(products *[]int64, id int64) {
+func AddProduct(products []int64, id int64) ([]int64, error) {
+    log.Println("add product called")
+
     for _, r := range products {
         if r == id {
-            return nil
+            return products, nil
         }
     }
 
     products = append(products, id)
+
+    return products, nil
 }
 
-func RemoveProduct(products *[]int64, id int64) {
-
+func RemoveProduct(products []int64, id int64) ([]int64, error){
+    return products, nil
 }
