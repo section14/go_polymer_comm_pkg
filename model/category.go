@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    "log"
+    //"log"
     "appengine"
     "appengine/datastore"
 )
@@ -88,7 +88,7 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int6
     c := appengine.NewContext(r)
 
     //new query
-    k := datastore.NewKey(c, "Category", "0", catId, nil)
+    k := datastore.NewKey(c, "Category", "", catId, nil)
 
     //get category
     err := datastore.Get(c, k, cat)
@@ -100,8 +100,6 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int6
     //get product list for this category
     prodList := cat.Products
     var newProdList []int64
-
-    log.Println("update called")
 
     //update list of products
     if add == true {
@@ -128,8 +126,6 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int6
 }
 
 func AddProduct(products []int64, id int64) ([]int64, error) {
-    log.Println("add product called")
-
     for _, r := range products {
         if r == id {
             return products, nil
