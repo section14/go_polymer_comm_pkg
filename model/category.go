@@ -84,6 +84,12 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
 func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int64, add bool) error {
     //method to update product list associated to a category
 
+    /*
+
+    Make this a projection query for the id
+
+    */
+
     //get context
     c := appengine.NewContext(r)
 

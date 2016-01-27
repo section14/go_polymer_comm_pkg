@@ -15,7 +15,7 @@ type Product struct {
 }
 
 type ProductReturn struct {
-    ID int64
+    Id int64
     Key string
     Title string
     Sku string
@@ -41,10 +41,32 @@ func (p *Product) CreateProduct(r *http.Request) (int64, error) {
     return newKey.IntID(), nil
 }
 
-/*
-func (p *Product) GetProducts(r *http.Request) ([]ProductReturn, error) {
+func (p *Product) GetProduct(r *http.Request, id int64) (ProductReturn, error) {
+    //return struct
+    var pr ProductReturn
+
     //get context
     c := appengine.NewContext(r)
+
+    //new query
+    k := datastore.NewKey(c, "Product", "", id, nil)
+
+    //get single product
+    err := datastore.Get(c, k, pr)
+
+    if err != nil {
+        return ProductReturn{}, err
+    }
+
+    return pr, nil
+}
+
+/*
+func (p *Product) GetProducts(r *http.Request, id int64) ([]ProductReturn, error) {
+    //get context
+    c := appengine.NewContext(r)
+
+    //id is a category id which holds an array of product id's
 
 
 }

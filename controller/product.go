@@ -24,7 +24,6 @@ type ProductReturn struct {
     Sku string
     Desc string
     Image string
-    Category int64
 }
 
 func (p *Product) CreateProduct(r *http.Request) error {
@@ -55,4 +54,61 @@ func (p *Product) CreateProduct(r *http.Request) error {
     categoryModel.UpdateProductList(r,p.Category,pid,true)
 
     return nil
+}
+
+func (p *Product) GetProduct(r *http.Request) (ProductReturn, error) {
+    type ProductId struct{
+        Id int64
+    }
+
+    var pid ProductId
+
+    //get json request body
+    decoder := json.NewDecoder(r.Body)
+    err := decoder.Decode(&pid.Id)
+
+    if err != nil {
+        return ProductReturn{}, err
+    }
+
+    //populate return struct
+    productModel := model.Product{}
+    product, err := productModel.GetProduct(r,pid.Id)
+
+    result := ProductReturn {
+        Id: product.Id,
+        Key: product.Key,
+        Title: product.Title,
+        Sku: product.Sku,
+        Desc: product.Desc,
+        Image: product.Image,
+    }
+
+    return result, nil
+
+    /*
+    productModel := model.Product{}
+    products, err := productModel.GetProduct(r,pid.Id)
+
+    if err != nil {
+        return []ProductReturn{}, err
+    }
+
+    results := make([]ProductReturn, 0, 20)
+
+    for _, pr := range products {
+        y := ProductReturn {
+            Id: pr.Id,
+            Key: pr.Key,
+            Title: pr.Title,
+            Sku: pr.Sku,
+            Desc: pr.Desc,
+            Image: pr.Image,
+        }
+
+        results = append(results, y)
+    }
+
+    return results, nil
+    */
 }
