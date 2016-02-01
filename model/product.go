@@ -52,7 +52,7 @@ func (p *Product) GetProduct(r *http.Request, id int64) (ProductReturn, error) {
     k := datastore.NewKey(c, "Product", "", id, nil)
 
     //get single product
-    err := datastore.Get(c, k, pr)
+    err := datastore.Get(c, k, &pr)
 
     if err != nil {
         return ProductReturn{}, err

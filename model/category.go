@@ -78,7 +78,6 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
     }
 
     return results, nil
-
 }
 
 func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int64, add bool) error {
@@ -131,18 +130,20 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int6
     return nil
 }
 
+//add a product to the list for this category
 func AddProduct(products []int64, id int64) ([]int64, error) {
     for _, r := range products {
         if r == id {
             return products, nil
         }
     }
-
     products = append(products, id)
 
     return products, nil
 }
 
+//remove a product from the list for this category
+//needs completed
 func RemoveProduct(products []int64, id int64) ([]int64, error){
     return products, nil
 }

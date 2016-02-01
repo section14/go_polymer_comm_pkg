@@ -56,24 +56,15 @@ func (p *Product) CreateProduct(r *http.Request) error {
     return nil
 }
 
-func (p *Product) GetProduct(r *http.Request) (ProductReturn, error) {
-    type ProductId struct{
-        Id int64
-    }
+func (p *Product) GetProduct(r *http.Request, id int64) (ProductReturn, error) {
 
-    var pid ProductId
-
-    //get json request body
-    decoder := json.NewDecoder(r.Body)
-    err := decoder.Decode(&pid.Id)
+    //populate return struct
+    productModel := model.Product{}
+    product, err := productModel.GetProduct(r, id)
 
     if err != nil {
         return ProductReturn{}, err
     }
-
-    //populate return struct
-    productModel := model.Product{}
-    product, err := productModel.GetProduct(r,pid.Id)
 
     result := ProductReturn {
         Id: product.Id,
