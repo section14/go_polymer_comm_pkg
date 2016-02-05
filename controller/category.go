@@ -87,18 +87,21 @@ func (cat *Category) GetCategories(r *http.Request) ([]CategoryReturn, error) {
 }
 
 //this returns all the categories in a structered json tree
-func (cat *Category) GetCategoryTree(r *http.Request, branch CategoryBranch) (CategoryTree, error) {
+func (cat *Category) GetCategoryTree(r *http.Request) (CategoryTree, error) {
     //start with base category 0
-    categories,err := GetCategoryBranch(r,0)
+    categories, err := cat.GetCategoryBranch(r,0)
 
     if err != nil {
         return CategoryTree{}, err
     }
 
-    return categories, nil
+    var tree CategoryTree
+    tree.Branch = categories
+
+    return tree, nil
 }
 
-func (cat *Category) GetCategoryBranch(r *http.Request, catId int64) (CategoryTree, error) {
+func (cat *Category) GetCategoryBranch(r *http.Request, parentId int64) ([]CategoryBranch, error) {
     categoryModel := model.Category{}
     categories, err := categoryModel.GetCategories(r, parentId)
 
@@ -108,13 +111,21 @@ func (cat *Category) GetCategoryBranch(r *http.Request, catId int64) (CategoryTr
 
     results := make([]CategoryBranch, 0, 20)
 
-    for _, r := range categories {
+    //get initial tree base
+    for _, cb := range categories {
         y := CategoryBranch {
-            Name: r.Name,
-            Id: r.Id,
+            Name: cb.Name,
+            Id: cb.Id,
         }
 
         results = append(results, y)
+    }
+
+    //loop through each node, recursively looking for children
+    for _, br := range results {
+        node := make([]CategoryBranch, 0, 20)
+
+        
     }
 
     return results, nil

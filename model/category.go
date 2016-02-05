@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    //"log"
+    "log"
     "appengine"
     "appengine/datastore"
 )
@@ -48,6 +48,8 @@ func (cat *Category) CreateCategory(r *http.Request, pid int64) error {
 func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn, error) {
     //get context
     c := appengine.NewContext(r)
+
+    log.Println("parent id: ", pid)
 
     //new query
     q := datastore.NewQuery("Category").Filter("ParentId=", pid)
