@@ -2,7 +2,7 @@ package model
 
 import (
     "net/http"
-    "log"
+    //"log"
     "appengine"
     "appengine/datastore"
 )
@@ -49,7 +49,7 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
     //get context
     c := appengine.NewContext(r)
 
-    log.Println("parent id: ", pid)
+    //log.Println("parent id: ", pid)
 
     //new query
     q := datastore.NewQuery("Category").Filter("ParentId=", pid)
