@@ -82,6 +82,41 @@ func (cat *Category) GetCategories(r *http.Request, pid int64) ([]CategoryReturn
     return results, nil
 }
 
+func (cat *Category) GetAllCategories(r *http.Request) ([]CategoryReturn, error) {
+    //get context
+    c := appengine.NewContext(r)
+
+    //new query
+    q := datastore.NewQuery("Category")
+
+    //populate category slices
+    var categories []CategoryReturn
+    keys, err := q.GetAll(c, &categories)
+
+    if err != nil {
+        //handle error
+        return []CategoryReturn{}, err
+    }
+
+    //create return object
+    results := make([]CategoryReturn, 0, 20)
+
+    for i, r := range categories {
+        k := keys[i]
+        y := CategoryReturn {
+            Name: r.Name,
+            Id: k.IntID(),
+            ParentId: r.ParentId,
+            Products: r.Products,
+            Key: k.Encode(),
+        }
+
+        results = append(results, y)
+    }
+
+    return results, nil
+}
+
 func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int64, add bool) error {
     //method to update product list associated to a category
 
