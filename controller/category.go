@@ -26,6 +26,7 @@ type CategoryBranch struct {
     Name string
     Id int64
     ParentId int64
+    SubBranch []CategoryBranch
 }
 
 type CategoryTree struct {
@@ -113,10 +114,14 @@ func (cat *Category) GetAllCategories(r *http.Request) ([]CategoryReturn, error)
 }
 
 //this returns all the categories in a structered json tree
-func (cat *Category) GetCategoryTree(r *http.Request, parentId int64) (CategoryTree, error) {
+func (cat *Category) GetCategoryTree(r *http.Request, parentId int64) ([]CategoryBranch, error) {
     //get list of all categories
     categoryModel := model.Category{}
     categories, err := categoryModel.GetAllCategories(r)
+
+    if err != nil {
+        return []CategoryBranch{}, err
+    }
 
     branches := make([]CategoryBranch, 0, 20)
 
@@ -130,50 +135,76 @@ func (cat *Category) GetCategoryTree(r *http.Request, parentId int64) (CategoryT
         branches = append(branches, y)
     }
 
-    //generate tree
-    tree, err := cat.GetCategoryBranch(r, branches, parentId)
+    categoryTree, err := cat.GetCategoryBranch(branches, parentId)
 
     if err != nil {
-        return CategoryTree{}, err
+        return []CategoryBranch{}, err
     }
 
-    return tree, nil
+    return categoryTree, nil
 }
 
-func (cat *Category) GetCategoryBranch(r *http.Request, categories []CategoryBranch, parentId int64) (CategoryTree, error) {
+func (cat *Category) GetCategoryBranch(categories []CategoryBranch, parentId int64) ([]CategoryBranch, error) {
 
-    var finalTree CategoryTree
-    var isParent bool = false
-
-    results := make([]CategoryBranch, 0, 20)
+    branch := make([]CategoryBranch, 0, 20)
 
     //get initial tree base
-    for _, cb := range categories {
+    for _, cs := range categories {
 
-        if cb.ParentId == parentId {
-            //populate struct
-            y:= CategoryBranch {
-                Name: cb.Name,
-                Id: cb.Id,
-                ParentId: cb.ParentId,
+        if cs.ParentId == parentId {
+            newBranch, err := cat.GetCategoryBranch(categories, cs.Id)
+
+            if err != nil {
+                log.Println("something in GetCategoryBranch")
             }
 
-            isParent = true
+            var y CategoryBranch
 
-            //get another level down
-            cat.GetCategoryBranch(r,categories,cb.Id)
+            if newBranch != nil {
+                log.Println("has children: ", newBranch)
 
-            results = append(results, y)
+                y = CategoryBranch {
+                    Name: cs.Name,
+                    Id: cs.Id,
+                    ParentId: cs.ParentId,
+                    SubBranch: newBranch,
+                }
+            } else {
+                y = CategoryBranch {
+                    Name: cs.Name,
+                    Id: cs.Id,
+                    ParentId: cs.ParentId,
+                }
+            }
 
-            log.Println("broheim?!: ", results)
+            branch = append(branch, y)
+        }
+
+    }
+
+    return branch, nil
+}
+
+func (cat *Category) GetUniqueParents(categories []CategoryBranch) []int64{
+    parentList := make([]int64, 0, 20)
+
+    for _, cb := range categories {
+        newParent := AddUniqueParent(cb.ParentId, parentList)
+
+        if newParent == true {
+            parentList = append(parentList, cb.ParentId)
         }
     }
 
-    if isParent == false {
-        //
-        finalTree.Branch = append(finalTree.Branch, results)
+    return parentList
+}
 
+func AddUniqueParent(id int64, parentList []int64) bool {
+    for _, cb := range parentList {
+        if id == cb {
+            return false
+        }
     }
 
-    return finalTree, nil
+    return true
 }
