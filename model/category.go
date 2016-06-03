@@ -117,7 +117,7 @@ func (cat *Category) GetAllCategories(r *http.Request) ([]CategoryReturn, error)
     return results, nil
 }
 
-func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int64, add bool) error {
+func (cat *Category) UpdateProductList(r *http.Request, catIds []int64, prodId int64, add bool) error {
     //method to update product list associated to a category
 
     /*
@@ -129,39 +129,48 @@ func (cat *Category) UpdateProductList(r *http.Request, catId int64, prodId int6
     //get context
     c := appengine.NewContext(r)
 
-    //new query
-    k := datastore.NewKey(c, "Category", "", catId, nil)
+    /*
 
-    //get category
-    err := datastore.Get(c, k, cat)
+    Something is not right, it's writing too much data to each category
 
-    if err != nil {
-        return err
-    }
+    */
 
-    //get product list for this category
-    prodList := cat.Products
-    var newProdList []int64
+    //loop over each category that needs this product associated with it
+    for _,id := range catIds {
+        //new query
+        k := datastore.NewKey(c, "Category", "", id, nil)
 
-    //update list of products
-    if add == true {
-        newProdList, err = AddProduct(prodList, prodId)
-    } else {
-        newProdList, err = RemoveProduct(prodList, prodId)
-    }
+        //get category
+        err := datastore.Get(c, k, cat)
 
-    if err != nil {
-        return err
-    }
+        if err != nil {
+            return err
+        }
 
-    //update struct
-    cat.Products = newProdList
+        //get product list for this category
+        prodList := cat.Products
+        var newProdList []int64
 
-    //insert into database
-    _, err = datastore.Put(c, k, cat)
+        //update list of products
+        if add == true {
+            newProdList, err = AddProduct(prodList, prodId)
+        } else {
+            newProdList, err = RemoveProduct(prodList, prodId)
+        }
 
-    if err != nil {
-        return err
+        if err != nil {
+            return err
+        }
+
+        //update struct
+        cat.Products = newProdList
+
+        //insert into database
+        _, err = datastore.Put(c, k, cat)
+
+        if err != nil {
+            return err
+        }
     }
 
     return nil

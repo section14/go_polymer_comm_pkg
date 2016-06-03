@@ -161,8 +161,6 @@ func (cat *Category) GetCategoryBranch(categories []CategoryBranch, parentId int
             var y CategoryBranch
 
             if newBranch != nil {
-                log.Println("has children: ", newBranch)
-
                 y = CategoryBranch {
                     Name: cs.Name,
                     Id: cs.Id,

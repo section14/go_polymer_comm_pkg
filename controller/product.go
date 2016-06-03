@@ -3,7 +3,7 @@ package controller
 import (
     "net/http"
     "encoding/json"
-    //"strconv"
+    "strconv"
     "log"
 
     "github.com/section14/go_polymer_comm_pkg/model"
@@ -14,7 +14,7 @@ type Product struct {
     Sku string
     Desc string
     Image string
-    Category int64
+    Category []string
 }
 
 type ProductReturn struct {
@@ -49,11 +49,35 @@ func (p *Product) CreateProduct(r *http.Request) error {
         log.Println(err)
     }
 
-    //add product to selected category .... needs updated to handle multiple categories
+    log.Println("categories: ", p.Category)
+
+    //add product to selected category
     categoryModel := model.Category{}
-    categoryModel.UpdateProductList(r,p.Category,pid,true)
+    categoryList, err := StringsToInts(p.Category)
+
+    if err != nil {
+        log.Println(err)
+    }
+    
+    categoryModel.UpdateProductList(r,categoryList,pid,true)
 
     return nil
+}
+
+func StringsToInts(s []string) ([]int64, error) {
+    var ints []int64
+
+    for _,r := range s {
+        convInt, err := strconv.ParseInt(r,0,64)
+
+        if err != nil {
+            return ints, err
+        }
+
+        ints = append(ints, convInt)
+    }
+
+    return ints, nil
 }
 
 func (p *Product) GetProduct(r *http.Request, id int64) (ProductReturn, error) {
